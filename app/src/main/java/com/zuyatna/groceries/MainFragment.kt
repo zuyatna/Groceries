@@ -47,10 +47,10 @@ class MainFragment : Fragment(), ActionMode.Callback {
         if (item.itemId == R.id.action_shuffle) {
             val adapter = binding.rvGroceries.adapter as MainAdapter
 
-            val items = adapter.items.toMutableList()
+            val items = adapter.currentList.toMutableList()
             if (items.size > 3) {
                 items.subList(1, items.size).shuffle()
-                adapter.setListItems(items)
+                adapter.submitList(items)
             } else {
                 Snackbar.make(binding.clContainer, R.string.item_add_more, Snackbar.LENGTH_SHORT).show()
             }
@@ -73,15 +73,15 @@ class MainFragment : Fragment(), ActionMode.Callback {
     private fun setupUiComponents() {
         val mainAdapter = MainAdapter { items: MutableList<Item>, changed: Item, isChecked: Boolean ->
 
-            var element = items.first { it.timeStamp == changed.timeStamp }
+            val element = items.first { it.timeStamp == changed.timeStamp }
             val index = items.indexOf(element)
 
-            element = if (index == 0) {
+            if (index == 0) {
                 Snackbar.make(binding.clContainer, R.string.item_more_cookies, Snackbar.LENGTH_SHORT).show()
-                element.copy(done = false)
+                element.done = false
 
             } else {
-                element.copy(done = isChecked)
+                element.done = isChecked
             }
 
             items[index] = element
@@ -110,7 +110,7 @@ class MainFragment : Fragment(), ActionMode.Callback {
 
         binding.ivAddToCart.isEnabled = false
         binding.ivAddToCart.setOnClickListener {
-            val list = mainAdapter.items.toMutableList()
+            val list = mainAdapter.currentList.toMutableList()
             list.add(
                     Item(
                         list.size,
@@ -158,11 +158,11 @@ class MainFragment : Fragment(), ActionMode.Callback {
             })
 
         mainAdapter.tracker = tracker
-        mainAdapter.setListItems(getGroceriesList(requireContext()))
+        mainAdapter.submitList(getGroceriesList(requireContext()))
     }
 
     private fun updateAndSave(list: List<Item>) {
-        (binding.rvGroceries.adapter as MainAdapter).setListItems(list)
+        (binding.rvGroceries.adapter as MainAdapter).submitList(list)
         saveGroceriesList(requireContext(), list)
     }
 
@@ -180,11 +180,11 @@ class MainFragment : Fragment(), ActionMode.Callback {
             R.id.action_delete -> {
                 val mainAdapter = binding.rvGroceries.adapter as MainAdapter
 
-                var selected = mainAdapter.items.filter {
+                var selected = mainAdapter.currentList.filter {
                     tracker.selection.contains(it.timeStamp)
                 }
 
-                val groceries = mainAdapter.items.toMutableList()
+                val groceries = mainAdapter.currentList.toMutableList()
                 if (groceries[0] == selected[0]) {
                     Snackbar.make(binding.clContainer, R.string.item_prohibited, Snackbar.LENGTH_SHORT).show()
                     selected = selected.subList(1, selected.size)

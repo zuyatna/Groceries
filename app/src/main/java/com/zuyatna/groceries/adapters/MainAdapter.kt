@@ -1,6 +1,5 @@
 package com.zuyatna.groceries.adapters
 
-import android.annotation.SuppressLint
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,17 +7,17 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.selection.ItemDetailsLookup
 import androidx.recyclerview.selection.SelectionTracker
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.zuyatna.groceries.R
 import com.zuyatna.groceries.databinding.ItemGroceryBinding
 import com.zuyatna.groceries.model.Item
 
 class MainAdapter(val action: (items: MutableList<Item>, changed: Item, checked: Boolean) -> Unit) :
-    RecyclerView.Adapter<MainAdapter.ItemViewHolder>() {
+  ListAdapter<Item, MainAdapter.ItemViewHolder>(DiffCallback()) {
 
   private lateinit var binding: ItemGroceryBinding
-
-  var items: List<Item> = emptyList()
 
   var tracker: SelectionTracker<Long>? = null
 
@@ -28,18 +27,12 @@ class MainAdapter(val action: (items: MutableList<Item>, changed: Item, checked:
   }
 
   override fun onBindViewHolder(viewHolder: ItemViewHolder, pos: Int) {
-    val item = items[pos]
+    val item = currentList[pos]
     viewHolder.bind(item)
   }
 
   override fun getItemCount(): Int {
-    return items.size
-  }
-
-  @SuppressLint("NotifyDataSetChanged")
-  fun setListItems(list: List<Item>) {
-    items = list
-    notifyDataSetChanged()
+    return currentList.size
   }
 
   inner class ItemViewHolder(private val itemBinding: ItemGroceryBinding) :
@@ -52,10 +45,10 @@ class MainAdapter(val action: (items: MutableList<Item>, changed: Item, checked:
       itemBinding.cbItem.setOnCheckedChangeListener { _, isChecked ->
         if (item.id == 0) {
           itemBinding.cbItem.isChecked = false
-          action(items.toMutableList(), item, false)
+          action(currentList.toMutableList(), item, false)
 
         } else {
-          action(items.toMutableList(), item, isChecked)
+          action(currentList.toMutableList(), item, isChecked)
         }
       }
 
@@ -95,7 +88,18 @@ class MainAdapter(val action: (items: MutableList<Item>, changed: Item, checked:
 
           override fun getPosition(): Int = adapterPosition
 
-          override fun getSelectionKey(): Long = items[adapterPosition].timeStamp
+
+          override fun getSelectionKey(): Long = getItem(adapterPosition).timeStamp
         }
   }
+
+  private class DiffCallback : DiffUtil.ItemCallback<Item>() {
+
+    override fun areItemsTheSame(oldItem: Item, newItem: Item) =
+      oldItem.id == newItem.id
+
+    override fun areContentsTheSame(oldItem: Item, newItem: Item) =
+      oldItem == newItem
+  }
+
 }
