@@ -166,8 +166,6 @@ class MainFragment : Fragment(), ActionMode.Callback {
         saveGroceriesList(requireContext(), list)
     }
 
-    // region ActionMode
-
     override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
         mode?.menuInflater?.inflate(R.menu.menu_actions, menu)
         return true
