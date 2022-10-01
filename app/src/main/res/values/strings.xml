@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Groceries</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_shuffle">Shuffle</string>
+    <string name="action_selected">%d selected</string>
+
+    <string name="item_default">🍪 Cookies</string>
+    <string name="item_prohibited">You can\'t delete cookies from the list.</string>
+    <string name="item_more_cookies">You cannot check cookies! There\'s always room for more</string>
+    <string name="item_add_more">Add more than 3 items to shuffle!</string>
+
+    <string name="hint_input">Bring cookies and…</string>
+
+    <!-- Content Description -->
+    <string name="description_add">Add item to groceries list</string>
+    <string name="item_selection">selectionItem</string>
 </resources>
